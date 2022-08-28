@@ -1,6 +1,6 @@
 // contracts/TokenVesting.sol
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.8.11;
+pragma solidity 0.8.14;
 
 import "./chirpleyvesting.sol";
 
@@ -12,7 +12,7 @@ contract MockTokenVesting is ChirpleyVesting{
 
     uint256 mockTime = 0;
 
-    constructor(address token_) TokenVesting(token_){
+    constructor(address token_) ChirpleyVesting(token_){
     }
 
     function setCurrentTime(uint256 _time)

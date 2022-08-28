@@ -50,8 +50,9 @@ describe("TokenVesting", function () {
       const slicePeriodSeconds = 1;
       const revokable = true;
       const amount = 100;
-	  const tgeRelease = 15; // percentage
-	  const tgeAmount = (amount/100)*tgeRelease;	  
+	  const tgeRelease = 10; // percentage
+	  const tgeAmount = (amount/100) * tgeRelease;
+	  const vestingAmount = amount - tgeAmount;
       // create new vesting schedule
       await tokenVesting.createVestingSchedule(
         beneficiary.address,
@@ -100,7 +101,7 @@ describe("TokenVesting", function () {
         await tokenVesting
           .connect(beneficiary)
           .computeReleasableAmount(vestingScheduleId)
-      ).to.be.equal(50 + tgeAmount);
+      ).to.be.equal((vestingAmount/2) + tgeAmount);
 
       // check that only beneficiary can try to release vested tokens
       await expect(
@@ -123,12 +124,12 @@ describe("TokenVesting", function () {
         .to.emit(testToken, "Transfer")
         .withArgs(tokenVesting.address, beneficiary.address, 10);
 
-      // check that the vested amount is now 40 + tgeAmount
+      // check that the vested amount is now vestingAmount - 10 + tgeAmount
       expect(
         await tokenVesting
           .connect(beneficiary)
           .computeReleasableAmount(vestingScheduleId)
-      ).to.be.equal(40 + tgeAmount);
+      ).to.be.equal(((vestingAmount/2) - 10) + tgeAmount);
       let vestingSchedule = await tokenVesting.getVestingSchedule(
         vestingScheduleId
       );
@@ -220,7 +221,7 @@ describe("TokenVesting", function () {
       const slicePeriodSeconds = 1;
       const revokable = true;
       const amount = 100;
-	  const tgeRelease = 15; // percentage
+	  const tgeRelease = 10; // percentage
 	  const tgeAmount = (amount/100)*tgeRelease;	
 	  
       // create new vesting schedule
@@ -248,7 +249,7 @@ describe("TokenVesting", function () {
 
       await expect(tokenVesting.revoke(vestingScheduleId))
         .to.emit(testToken, "Transfer")
-        .withArgs(tokenVesting.address, beneficiary.address, 50 + tgeAmount);
+        .withArgs(tokenVesting.address, beneficiary.address, ((100 - tgeAmount)/2) + tgeAmount);
     });
 
     it("Should compute vesting schedule index", async function () {
