@@ -7,6 +7,7 @@ describe("TokenVesting", function () {
   let owner;
   let addr1;
   let addr2;
+  let addr3;
   let addrs;
 
   before(async function () {
@@ -14,7 +15,7 @@ describe("TokenVesting", function () {
     TokenVesting = await ethers.getContractFactory("MockTokenVesting");
   });
   beforeEach(async function () {
-    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+    [owner, addr1, addr2, addr3, ...addrs] = await ethers.getSigners();
     testToken = await Token.deploy("Test Token", "TT", 1000000);
     await testToken.deployed();
   });
@@ -315,6 +316,85 @@ describe("TokenVesting", function () {
 		  0
         )
       ).to.be.revertedWith("TokenVesting: amount must be > 0");
+    });
+	
+	it("Should vest tokens in batch for addr1, addr2, addr3", async function () {
+      // deploy vesting contract
+      const tokenVesting = await TokenVesting.deploy(testToken.address);
+      await tokenVesting.deployed();
+      expect((await tokenVesting.getToken()).toString()).to.equal(
+        testToken.address
+      );
+      // send tokens to vesting contract
+      await expect(testToken.transfer(tokenVesting.address, 1000))
+        .to.emit(testToken, "Transfer")
+        .withArgs(owner.address, tokenVesting.address, 1000);
+
+      const baseTime = 1622551248;
+      const beneficiaries = [addr1.address,addr2.address,addr3.address];
+      const startTime = baseTime + 1;
+      const cliff = 0;
+      const duration = 1000;
+      const slicePeriodSeconds = 1;
+      const revokable = true;
+      const amount = ["100","200","300"];
+	  const tgeRelease = 0; // percentage
+	  
+      // create new vesting schedule
+      await tokenVesting.createVestingScheduleMultiple(
+        beneficiaries,
+        startTime,
+        cliff,
+        duration,
+        slicePeriodSeconds,
+        revokable,
+        amount,
+		tgeRelease
+      );
+
+      // compute vesting schedule id for addr1
+      const vestingScheduleId1 =
+        await tokenVesting.computeVestingScheduleIdForAddressAndIndex(
+          addr1.address,
+          0
+        );
+      // compute vesting schedule id for addr2
+      const vestingScheduleId2 =
+        await tokenVesting.computeVestingScheduleIdForAddressAndIndex(
+          addr2.address,
+          0
+        );
+      // compute vesting schedule id for addr3
+      const vestingScheduleId3 =
+        await tokenVesting.computeVestingScheduleIdForAddressAndIndex(
+          addr3.address,
+          0
+        );
+
+      // set current time after the end of the vesting period
+      await tokenVesting.setCurrentTime(startTime + duration + 1);	
+	  
+      // check that the vested amount of addr1 is 100
+      expect(
+        await tokenVesting
+          .connect(addr1)
+          .computeReleasableAmount(vestingScheduleId1)
+      ).to.be.equal(100);
+	 
+      // check that the vested amount of addr2 is 200
+      expect(
+        await tokenVesting
+          .connect(addr2)
+          .computeReleasableAmount(vestingScheduleId2)
+      ).to.be.equal(200);	 
+	  
+      // check that the vested amount of addr3 is 300
+      expect(
+        await tokenVesting
+          .connect(addr3)
+          .computeReleasableAmount(vestingScheduleId3)
+      ).to.be.equal(300);	  
+	  
     });
   });
 });

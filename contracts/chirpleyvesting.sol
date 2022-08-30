@@ -145,6 +145,7 @@ contract ChirpleyVesting is Ownable, ReentrancyGuard{
     * @param _slicePeriodSeconds duration of a slice period for the vesting in seconds
     * @param _revocable whether the vesting is revocable or not
     * @param _amount total amount of tokens to be released at the end of the vesting
+    * @param _tgePercentage array of TGE percentages of tokens to be released at TGE	
     */
     function createVestingSchedule(
         address _beneficiary,
@@ -356,6 +357,34 @@ contract ChirpleyVesting is Ownable, ReentrancyGuard{
                 uint256 releasableAmount = vestedAmount.sub(vestingSchedule.released);
                 return releasableAmount;               
             }
+        }
+    }
+
+    /**
+    * @notice Creates new vesting schedules for a beneficiaries in Batches of 100
+    * @param _beneficiary address array of the beneficiaries to whom vested tokens are transferred
+    * @param _start start time of the vesting period
+    * @param _cliff duration in seconds of the cliff in which tokens will begin to vest
+    * @param _duration duration in seconds of the period in which the tokens will vest
+    * @param _slicePeriodSeconds duration of a slice period for the vesting in seconds
+    * @param _revocable whether the vesting is revocable or not
+    * @param _amount array of total amounts of tokens to be released at the end of the vesting
+    * @param _tgePercentage array of TGE percentages of tokens to be released at TGE	
+    */
+    function createVestingScheduleMultiple(
+        address[] memory _beneficiary,
+        uint256 _start,
+        uint256 _cliff,
+        uint256 _duration,
+        uint256 _slicePeriodSeconds,
+        bool _revocable,
+        uint256[] memory _amount,
+		uint256	_tgePercentage		
+    )
+        external
+        onlyOwner{
+        for(uint256 i = 0; i < _beneficiary.length; i++) {
+			createVestingSchedule(_beneficiary[i], _start, _cliff, _duration, _slicePeriodSeconds, _revocable, _amount[i], _tgePercentage);
         }
     }
 
