@@ -1,5 +1,28 @@
 // contracts/TokenVesting.sol
 // SPDX-License-Identifier: Apache-2.0
+
+// SPDX-License-Identifier: MIT
+/**
+Chirpley is the world’s first automated, peer-to-peer, all-in-one influencer marketplace
+specifically focussed on nano and micro influencers.
+Chirpley will provide marketers with the freedom to act fast and effective,
+thanks to the possibility of a 1-click marketing bomb.
+
+Website: https://chirpley.ai
+App: https://app.chirpley.ai
+Gitbook: https://chirpley.gitbook.io
+Github: https://github.com/chirpley
+Medium: https://chirpley.medium.com
+Telegram: https://t.me/chirpley
+Twitter: https://twitter.com/chirpley
+Discord: https://discord.gg/chirpley
+Youtube: https://www.youtube.com/c/chirpley
+Tiktok: https://www.tiktok.com/@chirpley
+Instagram: https://www.instagram.com/chirpley/
+Facebook: https://www.facebook.com/chirpley
+
+**/
+
 pragma solidity 0.8.14;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
