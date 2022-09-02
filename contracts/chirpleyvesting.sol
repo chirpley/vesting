@@ -1,6 +1,3 @@
-// contracts/TokenVesting.sol
-// SPDX-License-Identifier: Apache-2.0
-
 // SPDX-License-Identifier: MIT
 /**
 Chirpley is the world’s first automated, peer-to-peer, all-in-one influencer marketplace
@@ -23,7 +20,7 @@ Facebook: https://www.facebook.com/chirpley
 
 **/
 
-pragma solidity 0.8.14;
+pragma solidity 0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -77,7 +74,7 @@ contract ChirpleyVesting is Ownable, ReentrancyGuard{
     * @dev Reverts if no vesting schedule matches the passed identifier.
     */
     modifier onlyIfVestingScheduleExists(bytes32 vestingScheduleId) {
-        require(vestingSchedules[vestingScheduleId].initialized == true);
+        require(vestingSchedules[vestingScheduleId].initialized == true, "Vesting schedule not found");
         _;
     }
 
@@ -85,8 +82,8 @@ contract ChirpleyVesting is Ownable, ReentrancyGuard{
     * @dev Reverts if the vesting schedule does not exist or has been revoked.
     */
     modifier onlyIfVestingScheduleNotRevoked(bytes32 vestingScheduleId) {
-        require(vestingSchedules[vestingScheduleId].initialized == true);
-        require(vestingSchedules[vestingScheduleId].revoked == false);
+        require(vestingSchedules[vestingScheduleId].initialized == true, "Vesting schedule not found");
+        require(vestingSchedules[vestingScheduleId].revoked == false, "Vesting schedule has been revoked");
         _;
     }
 
@@ -95,7 +92,7 @@ contract ChirpleyVesting is Ownable, ReentrancyGuard{
      * @param token_ address of the ERC20 token contract
      */
     constructor(address token_) {
-        require(token_ != address(0x0));
+        require(token_ != address(0x0), "Token contract can not be zero address");
         _token = IERC20(token_);
     }
 
